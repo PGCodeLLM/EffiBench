@@ -93,7 +93,7 @@ def fetch_completion_with_args(data_entry, model, args=None):
 
 def add_custom_arguments(parser):
     # BEN: I dont know if all of these will be necessary, but adding them for completeness
-    parser.add_argument('--exp-id', type=str, default='', help='Experiment ID')
+    parser.add_argument('--exp-id', type=str, required=True, help='Experiment ID')
     parser.add_argument('--model-v1-endpoint', type=str, default='', help='Model v1 endpoint')
     parser.add_argument('--api-key', type=str, default='', help='API key')
     parser.add_argument('--num-workers', type=int, default=10, help='Number of workers')
