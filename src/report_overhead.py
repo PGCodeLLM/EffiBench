@@ -163,12 +163,10 @@ for experiment in global_result.keys():
     global_result[experiment]["normalized_memory_usage_list"] = normalized_memory_usage_list
     global_result[experiment]["total_codes"] = total_codes
 
-    print(f"{experiment}&{total_execution_time:.2f}&{normalized_execution_time:.2f}&{total_max_memory_usage:.2f}&{normalized_max_memory_usage:.2f}&{total_memory_usage:.2f}&{normalized_memory_usage:.2f}\\\\")
-
-
     # ensure base output overhead directory exists
     overhead_directory = os.path.join("..", "overhead_results")
     os.makedirs(overhead_directory, exist_ok=True)
     with open(os.path.join(overhead_directory, f"{experiment}_overhead_report.json"), "w") as f:
         json.dump(global_result[experiment], f, indent=4)
     
+    print(f"{experiment}&{total_execution_time:.2f}&{normalized_execution_time:.2f}&{total_max_memory_usage:.2f}&{normalized_max_memory_usage:.2f}&{total_memory_usage:.2f}&{normalized_memory_usage:.2f}\\\\")
