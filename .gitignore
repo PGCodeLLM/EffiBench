@@ -1,0 +1,6 @@
+# Ignore all directories inside dat_results (and everything in them)
+dat_results/*/
+# But do not ignore files directly inside dat_results
+!dat_results/*
+
+.venv

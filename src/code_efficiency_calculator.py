@@ -61,9 +61,18 @@ def calculate_code_execution_efficiency(data, evaluation_code=False, path="./tmp
     finally:
         return data
 
-def fetch_completion(dataset, model):
+def fetch_completion(dataset, dat_path):
     with ThreadPoolExecutor() as executor:
-        future_to_entry = {executor.submit(calculate_code_execution_efficiency, entry, False, path=model, max_execution_time=5): entry for entry in tqdm(dataset)}
+        future_to_entry = {
+            executor.submit(
+                calculate_code_execution_efficiency,
+                entry,
+                False,
+                path=dat_path,
+                max_execution_time=5,
+            ): entry
+            for entry in tqdm(dataset)
+        }
         for future in tqdm(concurrent.futures.as_completed(future_to_entry)):
             entry = future_to_entry[future]
             try:
@@ -100,25 +109,32 @@ def add_string_to_py_file(data, evaluation_code=False, path="./tmp/"):
         pass
     return return_path, full_code
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', '-m', type=str, default='gpt-3.5-turbo', help='Model to use for evaluation')
+    # BEN: We'll use the experiment ID rather than the model for all output directories
+    # parser.add_argument('--model', '-m', type=str, default='gpt-3.5-turbo', help='Model to use for evaluation')
+    parser.add_argument('--exp-id', type=str, default='', help='Experiment ID')
     args = parser.parse_args()
-    models = ["canonical_solution",args.model]
-    for model in models:
-        if "/" in model:
-            model = model.split("/")[1]
-        if model == "canonical_solution":
-            with open(f"../results/{models[-1].split('/')[-1]}.json", "r") as f:
+
+    # BEN: We'll use the experiment ID rather than the model for all output directories
+    # models = ["canonical_solution",args.model]
+    # BEN: Why do they always do the Canonical solution first? Isn't it a bunch of extra work after they've done it once?
+    experiments = ["canonical_solution", args.exp_id]
+    for experiment in experiments:
+        if "/" in experiment:
+            experiment = experiment.split("/")[1]
+        if experiment == "canonical_solution":
+            with open(f"../results/{experiments[-1].split('/')[-1]}.json", "r") as f:
                 dataset = json.load(f)
         else:
             try:
-                with open(f"../results/{model}.json", "r") as f:
+                with open(f"../results/{experiment}.json", "r") as f:
                     dataset = json.load(f)
             except Exception as e:
                 print(e)
                 continue
 
-        dat_path = f"../dat_results/{model}"
+        dat_path = f"../dat_results/{experiment}"
         os.makedirs(dat_path, exist_ok=True)
         fetch_completion(dataset, dat_path)
