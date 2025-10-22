@@ -1,3 +1,4 @@
+import argparse
 import json
 import os
 import glob
@@ -48,7 +49,13 @@ def report_max_memory_usage(dat_file_path):
             max_memory_usage = max(max_memory_usage, mem_in_mb)
         return max_memory_usage
 
-model_list = ["gpt-3.5-turbo"]
+# BEN: Need to use experiment_id rather than model for all output directories
+# model_list = ["gpt-3.5-turbo"]
+parser = argparse.ArgumentParser()
+parser.add_argument('--exp-id', type=str, required=True, help='Experiment ID')
+args = parser.parse_args()
+experiment_list = [args.exp_id]
+
 canonical_solution_directory = "../dat_results/canonical_solution"
 canonical_solution_memory_usage = {}
 canonical_solution_execution_time = {}
@@ -64,14 +71,14 @@ for dat_file in glob.glob(os.path.join(canonical_solution_directory, "*.dat")):
 
 global_result = {}
 
-for model in model_list:
-    if "/" in model:
-        model = model.split("/")[1]
+for experiment in experiment_list:
+    if "/" in experiment:
+        experiment = experiment.split("/")[1]
     completion_memory_usage = {}
     execution_time = {}
     max_memory_usage = {}
     task_idx = {}
-    dat_directory = f"../dat_results/{model}"
+    dat_directory = f"../dat_results/{experiment}"
     for dat_file in glob.glob(os.path.join(dat_directory, "*.dat")):
         try:
             problem_idx = os.path.basename(dat_file).split('.')[0]
@@ -81,17 +88,17 @@ for model in model_list:
             task_idx[int(problem_idx)] = dat_file
         except Exception as e:
             print(dat_file)
-    global_result[model] = {
+    global_result[experiment] = {
         "completion_memory_usage": completion_memory_usage,
         "execution_time": execution_time,
         "max_memory_usage": max_memory_usage,
         "task_idx": task_idx
         }
 
-for model in global_result.keys():
-    completion_memory_usage = global_result[model]["completion_memory_usage"]
-    execution_time = global_result[model]["execution_time"]
-    max_memory_usage = global_result[model]["max_memory_usage"]
+for experiment in global_result.keys():
+    completion_memory_usage = global_result[experiment]["completion_memory_usage"]
+    execution_time = global_result[experiment]["execution_time"]
+    max_memory_usage = global_result[experiment]["max_memory_usage"]
 
     total_execution_time = 0
     normalized_execution_time = 0
@@ -130,7 +137,7 @@ for model in global_result.keys():
         total_codes += 1
 
     if len(normalized_execution_time_list) == 0:
-        print(model)
+        print(experiment)
         continue
 
     normalized_execution_time = total_execution_time / total_canonical_solution_execution_time
@@ -142,4 +149,26 @@ for model in global_result.keys():
 
     pass1 = len(normalized_execution_time_list) / 1000 * 100
 
-    print(f"{model}&{total_execution_time:.2f}&{normalized_execution_time:.2f}&{total_max_memory_usage:.2f}&{normalized_max_memory_usage:.2f}&{total_memory_usage:.2f}&{normalized_memory_usage:.2f}\\\\")
+    global_result[experiment]["total_execution_time"] = total_execution_time
+    global_result[experiment]["normalized_execution_time"] = normalized_execution_time
+    global_result[experiment]["total_max_memory_usage"] = total_max_memory_usage
+    global_result[experiment]["normalized_max_memory_usage"] = normalized_max_memory_usage
+    global_result[experiment]["total_memory_usage"] = total_memory_usage
+    global_result[experiment]["normalized_memory_usage"] = normalized_memory_usage
+    global_result[experiment]["total_canonical_solution_max_memory_usage"] = total_canonical_solution_max_memory_usage
+    global_result[experiment]["total_canonical_solution_execution_time"] = total_canonical_solution_execution_time
+    global_result[experiment]["total_canonical_solution_memory_usage"] = total_canonical_solution_memory_usage
+    global_result[experiment]["normalized_execution_time_list"] = normalized_execution_time_list
+    global_result[experiment]["normalized_max_memory_usage_list"] = normalized_max_memory_usage_list
+    global_result[experiment]["normalized_memory_usage_list"] = normalized_memory_usage_list
+    global_result[experiment]["total_codes"] = total_codes
+
+    print(f"{experiment}&{total_execution_time:.2f}&{normalized_execution_time:.2f}&{total_max_memory_usage:.2f}&{normalized_max_memory_usage:.2f}&{total_memory_usage:.2f}&{normalized_memory_usage:.2f}\\\\")
+
+
+    # ensure base output overhead directory exists
+    overhead_directory = os.path.join("..", "overhead_results")
+    os.makedirs(overhead_directory, exist_ok=True)
+    with open(os.path.join(overhead_directory, f"{experiment}_overhead_report.json"), "w") as f:
+        json.dump(global_result[experiment], f, indent=4)
+    

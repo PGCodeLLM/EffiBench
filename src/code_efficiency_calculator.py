@@ -114,7 +114,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # BEN: We'll use the experiment ID rather than the model for all output directories
     # parser.add_argument('--model', '-m', type=str, default='gpt-3.5-turbo', help='Model to use for evaluation')
-    parser.add_argument('--exp-id', type=str, default='', help='Experiment ID')
+    parser.add_argument('--exp-id', type=str, required=True, help='Experiment ID')
     args = parser.parse_args()
 
     # BEN: We'll use the experiment ID rather than the model for all output directories

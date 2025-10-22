@@ -1,11 +1,10 @@
-# Ignore all directories inside dat_results (and everything in them)
-dat_results/*/
-# But do not ignore files directly inside dat_results
-!dat_results/*
+# Ignore dat_results
+dat_results
 
-# Ignore everything under results/
-results/*
-# But don't ignore this specific file, because it was included in the original repo
-!results/gpt-3.5-turbo.json
+# Ignore results
+results
+
+# Ignore overhead_results
+overhead_results
 
 .venv
