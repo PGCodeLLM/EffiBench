@@ -3,4 +3,9 @@ dat_results/*/
 # But do not ignore files directly inside dat_results
 !dat_results/*
 
+# Ignore everything under results/
+results/*
+# But don't ignore this specific file, because it was included in the original repo
+!results/gpt-3.5-turbo.json
+
 .venv
